@@ -1,15 +1,30 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+    "name": "Codemirror Global Settings",
+    "version": "1.0.0",
+    "description": "Set the configuration opptions for every codemirror instnace",
+    "permissions": ["storage", "*://*/*"],
+    "icons": {
+        "128": "assets/cm-icon-128.png",
+        "48": "assets/cm-icon-48.png",
+        "32": "assets/cm-icon-128.png",
+        "16": "assets/cm-icon-128.png"
+    },
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    "browser_action": {
+        "default_icon": "assets/cm-icon-128.png",
+        "default_popup": "index.html",
+        "default_title": "Open the popup"
+    },
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "content_scripts": [
+        {
+            "js": ["content.js"],
+            "matches": ["<all_urls>"],
+            "exclude_matches": ["*://*.codemirror.net/*"]
+        }
+    ],
+    "manifest_version": 2
 }
