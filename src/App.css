@@ -1,33 +1,68 @@
-.App {
-  text-align: center;
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Source Sans Pro'), local('SourceSansPro-Regular'),
+        url(//themes.googleusercontent.com/static/fonts/sourcesanspro/v5/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff)
+            format('woff');
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
+html {
+    width: 320px;
+    margin: 0px;
+    padding: 0px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+body {
+    margin: 0px;
+    padding: 10px;
+    font-size: 1rem;
 }
 
-.App-link {
-  color: #61dafb;
+span.title {
+    vertical-align: super;
+}
+option {
+    font-size: 80%;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.heading {
+    font-size: 1.6rem;
+    margin-top: 20px;
+}
+
+.label {
+    font-size: 1.2rem;
+    text-align: end;
+}
+
+.row {
+    margin-bottom: 0px;
+}
+.input-field {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.nudge-right {
+    margin-left: 15px;
+}
+
+.nudge-right {
+    margin-left: 15px;
+}
+img.App-logo {
+    margin-right: 10px;
+    display: inline;
+    width: 40px;
+    align: middle;
+}
+.options-label {
+    font-size: 1rem;
+}
+
+p {
+    vertical-align: super;
+    margin-block-start: 0.5em;
+    margin-block-end: 0.5em;
 }

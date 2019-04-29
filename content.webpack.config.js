@@ -1,3 +1,6 @@
+// consider adding tasks that do: 
+// cp node_modules/materialize-css/dist/css/materialize.min.css ./public/
+// cp node_modules/materialize-css/dist/js/materialize.min.js ./public/
 const webpack = require('webpack')
 const path = require('path')
 
