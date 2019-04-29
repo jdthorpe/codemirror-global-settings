@@ -101,7 +101,7 @@ class cm_bindings {
             if (el['CodeMirror']) {
                 let cm: CodeMirror = el['CodeMirror']
 
-                this.disable_keys.map(key => {
+                this.disable_keys.forEach(key => {
                     delete cm.constructor['keyMap'].emacsy[key]
                 })
                 cm.constructor['vim_disable_keys'] = this.vim_disable_keys

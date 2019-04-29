@@ -27,7 +27,7 @@ var cm_bindings = (function () {
             var el = this_1.queue[i];
             if (el['CodeMirror']) {
                 var cm_1 = el['CodeMirror'];
-                this_1.disable_keys.map(function (key) {
+                this_1.disable_keys.forEach(function (key) {
                     delete cm_1.constructor['keyMap'].emacsy[key];
                 });
                 cm_1.constructor['vim_disable_keys'] = this_1.vim_disable_keys;
