@@ -51,6 +51,15 @@ option {
 .nudge-right {
     margin-left: 15px;
 }
+.dropdown-content li {
+    min-height: 0px;
+}
+.dropdown-content li>span {
+    font-size: 12px;
+    line-height: 18px;
+    padding: 8px 9px;
+}
+
 img.App-logo {
     margin-right: 10px;
     display: inline;
