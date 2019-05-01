@@ -7,6 +7,15 @@
             format('woff');
 }
 
+hr {
+    border: 0px;
+    border-top: 1px solid #eee;
+}
+
+.clearfix {
+    overflow:auto;
+}
+
 html {
     width: 320px;
     margin: 0px;
@@ -28,7 +37,6 @@ option {
 
 .heading {
     font-size: 1.6rem;
-    margin-top: 20px;
 }
 
 .label {
@@ -54,7 +62,7 @@ option {
 .dropdown-content li {
     min-height: 0px;
 }
-.dropdown-content li>span {
+.dropdown-content li > span {
     font-size: 12px;
     line-height: 18px;
     padding: 8px 9px;
