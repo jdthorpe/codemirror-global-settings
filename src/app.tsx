@@ -1,10 +1,11 @@
 ///<reference path="../node_modules/@types/chrome/index.d.ts" />
-/*global chrome*/
+/*global chrome $ window */
 import React, { Component } from 'react'
 
 import logo from './assets/logo.svg'
 import './App.css'
 import { Letters } from './letters'
+const { FormSelect } = require('materialize')
 const { Select, Button } = require('react-materialize')
 
 const Aux = (props: any) => {
@@ -139,8 +140,14 @@ class App extends Component<{}, appState> {
             }
             this.setState(s as Pick<appState, keyof appState>)
         })
+        // ( $('select') as any ).material_select();
     }
 
+    componentDidUpdate() {
+        // ( $('select') as any ).material_select();
+        // var elems = document.querySelectorAll('select');
+        // var instances = FormSelect.init(elems);
+    }
     onSave() {
         let _state: any = {
             theme: this.state.theme,
@@ -166,12 +173,12 @@ class App extends Component<{}, appState> {
         })
     }
 
-    onColorChange(e: Event) {
+    onColorChange(e: React.ChangeEvent<HTMLSelectElement>) {
         console.log('ColorChanged: ', (e.target as HTMLSelectElement).value)
         this.setState({ theme: (e.target as HTMLSelectElement).value })
     }
 
-    onKeyMapChange(e: any) {
+    onKeyMapChange(e: React.ChangeEvent<HTMLSelectElement>) {
         console.log('KeyMapChange: ', (e.target as HTMLSelectElement).value)
         this.setState({ keymap: (e.target as HTMLSelectElement).value })
     }
@@ -202,6 +209,8 @@ class App extends Component<{}, appState> {
                     label={'Theme'}
                     options={style_names}
                 />
+
+                <div className="spacer" />
 
                 <MySelect
                     value={this.state.keymap}
@@ -354,36 +363,45 @@ const Messages = (props: {
             <div className="clearfix" />
             {props.messages.map(m => (
                 <div className="row red-text nudge-right">
-                    {' '}
-                    <p>{m}</p>{' '}
+                    <p>{m}</p>
                 </div>
             ))}
         </Aux>
     )
 }
 
+//-- declare var majic: React.DetailedHTMLProps<React.SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>;
+//-- majic.val
+
+declare var window: any
 const MySelect = (props: {
     value: string
     label: string | React.Component
-    onChange: (e: Event) => void
+    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
     options: string[]
 }) => {
+    const sele: React.ReactElement = (
+        <select
+            defaultValue={props.value}
+            value={props.value}
+            onChange={props.onChange}
+            className="browser-default"
+        >
+            {props.options.map((name: string) => (
+                <option value={name}>{name}</option>
+            ))}
+        </select>
+    )
+
+    window[props.value] = sele
+
+    console.log('selectedIndex=', props.options.indexOf(props.value))
     return (
         <div className="row">
             <div className="label col s4 black-text">
                 <p>{props.label}</p>
             </div>
-            <div className="input-field col s8">
-                <Select
-                    value={3}
-                    onChange={props.onChange}
-                    className="m"
-                >
-                    {props.options.map((name: string) => (
-                        <option value={name}>{name}</option>
-                    ))}
-                </Select>
-            </div>
+            <div className="input-field col s8">{sele}</div>
         </div>
     )
 }

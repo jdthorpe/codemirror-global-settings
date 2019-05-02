@@ -13,9 +13,12 @@ hr {
 }
 
 .clearfix {
-    overflow:auto;
+    overflow: auto;
 }
 
+.spacer {
+    height: 0.6rem;
+}
 html {
     width: 320px;
     margin: 0px;

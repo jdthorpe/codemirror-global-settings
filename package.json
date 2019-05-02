@@ -3,6 +3,9 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "@types/jquery": "^3.3.29",
+        "jquery": "^3.4.1",
+        "materialize": "^1.0.0",
         "materialize-css": "^1.0.0-rc.2",
         "react": "^16.8.6",
         "react-app-rewired": "^2.1.3",
