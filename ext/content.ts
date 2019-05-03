@@ -9,7 +9,7 @@ import page from '!!raw-loader!./page'
 import { inject_script } from './inject'
 import styles from './styles'
 
-import { toPairs } from 'lodash'
+let toPairs = require( 'lodash.topairs')
 
 // const KeyMaps = ['default', 'Vim', 'Emacs', 'SublimeText']
 

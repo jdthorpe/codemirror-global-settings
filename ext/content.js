@@ -6,7 +6,7 @@ var sublime_1 = require("!!raw-loader!./keymap/sublime");
 var page_1 = require("!!raw-loader!./page");
 var inject_1 = require("./inject");
 var styles_1 = require("./styles");
-var lodash_1 = require("lodash");
+var toPairs = require('lodash.topairs');
 var stored_state_keys = [
     'theme',
     'keymap',
@@ -18,7 +18,7 @@ function buildBindingKeys(state, mapname, os) {
     var disabledKeys = JSON.parse(state.storedDisabledBindings);
     switch (mapname) {
         case 'Vim':
-            var ctrl = lodash_1.toPairs(disabledKeys['vim-ctrl'])
+            var ctrl = toPairs(disabledKeys['vim-ctrl'])
                 .filter(function (_a) {
                 var key = _a[0], value = _a[1];
                 return value;
@@ -34,7 +34,7 @@ function buildBindingKeys(state, mapname, os) {
             return '[]';
         default:
             if (os === 'mac') {
-                var ctrl_1 = lodash_1.toPairs(disabledKeys['default-mac-ctrl'])
+                var ctrl_1 = toPairs(disabledKeys['default-mac-ctrl'])
                     .filter(function (_a) {
                     var key = _a[0], value = _a[1];
                     return value;
@@ -43,7 +43,7 @@ function buildBindingKeys(state, mapname, os) {
                     var key = _a[0], value = _a[1];
                     return "Ctrl-" + key;
                 });
-                var alt = lodash_1.toPairs(disabledKeys['default-mac-alt'])
+                var alt = toPairs(disabledKeys['default-mac-alt'])
                     .filter(function (_a) {
                     var key = _a[0], value = _a[1];
                     return value;
@@ -52,7 +52,7 @@ function buildBindingKeys(state, mapname, os) {
                     var key = _a[0], value = _a[1];
                     return "Alt-" + key;
                 });
-                var cmd = lodash_1.toPairs(disabledKeys['default-mac-cmd'])
+                var cmd = toPairs(disabledKeys['default-mac-cmd'])
                     .filter(function (_a) {
                     var key = _a[0], value = _a[1];
                     return value;
@@ -64,7 +64,7 @@ function buildBindingKeys(state, mapname, os) {
                 return JSON.stringify(ctrl_1.concat(alt).concat(cmd));
             }
             else {
-                var ctrl_2 = lodash_1.toPairs(disabledKeys['default-pc-ctrl'])
+                var ctrl_2 = toPairs(disabledKeys['default-pc-ctrl'])
                     .filter(function (_a) {
                     var key = _a[0], value = _a[1];
                     return value;
