@@ -58,7 +58,7 @@ module.exports = {
     },
 
     entry: {
-        options: __dirname + '/ext/options.js',
+        //options: __dirname + '/ext/options.js',
         content: __dirname + '/ext/content.js',
         background: __dirname + '/ext/background.js',
     },

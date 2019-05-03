@@ -78,10 +78,9 @@ function buildBindingKeys(state, mapname, os) {
     }
 }
 chrome.storage.sync.get(stored_state_keys, function (state) {
-    console.log("HARD CODED os", state);
-    var keys = buildBindingKeys(state, "Vim", "mac");
-    console.log('key vindings ', keys);
-    var script = "\nvar __mapName = \"" + state.keymap + "\";\nvar __vim_disable_keys = " + buildBindingKeys(state, "Vim", "mac") + ";\nvar __default_disable_keys = " + buildBindingKeys(state, "default", "mac") + ";\nvar __vim_key_map = " + vim_1.default + ";\nvar __emacs_key_map = " + emacs_1.default + ";\nvar __sublime_key_map = " + sublime_1.default + ";\nvar __styleName = \"" + (state.theme in styles_1.default ? state.theme : 'default') + "\"\nvar __styleCSS = `" + (state.theme in styles_1.default ? styles_1.default[state.theme] : '') + "`\n";
+    var keys = buildBindingKeys(state, 'Vim', 'mac');
+    var os = /Mac/.test(navigator.platform) ? "mac" : "other";
+    var script = "\nvar __mapName = \"" + state.keymap + "\";\nvar __vim_disable_keys = " + buildBindingKeys(state, 'Vim', os) + ";\nvar __default_disable_keys = " + buildBindingKeys(state, 'default', os) + ";\nvar __vim_key_map = " + vim_1.default + ";\nvar __emacs_key_map = " + emacs_1.default + ";\nvar __sublime_key_map = " + sublime_1.default + ";\nvar __styleName = \"" + (state.theme in styles_1.default ? state.theme : 'default') + "\"\nvar __styleCSS = `" + (state.theme in styles_1.default ? styles_1.default[state.theme] : '') + "`\n";
     inject_1.inject_script("(function(){" + script + ";" + page_1.default + ";\n})()");
 });
 function getBindings(name) {
@@ -101,25 +100,30 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         sendResponse({
             message: 'got an invalid request',
         });
-    console.log(sender.tab
-        ? 'from a content script:' + sender.tab.url
-        : 'from the extension');
-    switch (request.action) {
-        case 'set_theme':
-            inject_1.inject_script("(function(){\nlet __styleName = \"" + (request.theme in styles_1.default ? request.theme : 'default') + "\"\nlet __styleCSS = `" + (request.theme in styles_1.default ? styles_1.default[request.theme] : '') + "`\nwindow.__cm_global_config.set_style(__styleName, __styleCSS) \n})()");
-            sendResponse({ message: 'Theme script injected' });
-            break;
-        case 'apply':
-            chrome.storage.sync.get(stored_state_keys, function (state) {
-                var keys = buildBindingKeys(state, state.keymap, request.platform);
-                console.log('applying key vindings ', keys);
-                inject_1.inject_script("(function(){\nlet __styleName = \"" + (state.theme in styles_1.default ? state.theme : 'default') + "\";\nlet __styleCSS = `" + (state.theme in styles_1.default ? styles_1.default[state.theme] : '') + "`;\nwindow.__cm_global_config.set_style(__styleName, __styleCSS);\nwindow.__cm_global_config.set_keymap(\"" + state.keymap + "\"," + keys + ") ;\n})()");
-            });
-            break;
-        default:
-            sendResponse({
-                message: 'not sure what to do with ' + JSON.stringify(request),
-            });
+    try {
+        switch (request.action) {
+            case 'set_theme':
+                inject_1.inject_script("(function(){\nlet __styleName = \"" + (request.theme in styles_1.default ? request.theme : 'default') + "\"\nlet __styleCSS = `" + (request.theme in styles_1.default ? styles_1.default[request.theme] : '') + "`\nwindow.__cm_global_config.set_style(__styleName, __styleCSS) \n})()");
+                sendResponse({ message: 'Theme script injected' });
+                break;
+            case 'apply':
+                chrome.storage.sync.get(stored_state_keys, function (state) {
+                    var keys = buildBindingKeys(state, state.keymap, request.platform);
+                    inject_1.inject_script("(function(){\nlet __styleName = \"" + (state.theme in styles_1.default ? state.theme : 'default') + "\";\nlet __styleCSS = `" + (state.theme in styles_1.default ? styles_1.default[state.theme] : '') + "`;\nwindow.__cm_global_config.set_style(__styleName, __styleCSS);\nwindow.__cm_global_config.set_keymap(\"" + state.keymap + "\"," + keys + ") ;\n})()");
+                });
+                sendResponse({ message: 'The settings were applied' });
+                break;
+            default:
+                sendResponse({
+                    message: 'not sure what to do with ' + JSON.stringify(request),
+                });
+        }
+    }
+    catch (err) {
+        sendResponse({
+            message: 'something went wrong',
+            error: err,
+        });
     }
 });
 //# sourceMappingURL=content.js.map

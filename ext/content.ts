@@ -9,7 +9,7 @@ import page from '!!raw-loader!./page'
 import { inject_script } from './inject'
 import styles from './styles'
 
-import { toPairs } from "lodash"
+import { toPairs } from 'lodash'
 
 // const KeyMaps = ['default', 'Vim', 'Emacs', 'SublimeText']
 
@@ -27,13 +27,13 @@ const stored_state_keys = [
 //--     'default-mac-alt': 'fbd',
 //--     'default-mac-cmd': 'adzysfgu',
 
-function buildBindingKeys(state:any,mapname:string, os:string) {
+function buildBindingKeys(state: any, mapname: string, os: string) {
     let disabledKeys = JSON.parse(state.storedDisabledBindings)
     switch (mapname) {
         case 'Vim':
             let ctrl = toPairs(disabledKeys['vim-ctrl'])
-                .filter(([key, value]:[string, boolean]) => value)
-                .map(([key, value]:[string, boolean]) => `<C-${key}>`)
+                .filter(([key, value]: [string, boolean]) => value)
+                .map(([key, value]: [string, boolean]) => `<C-${key}>`)
             return JSON.stringify(ctrl)
 
         case 'Emacs':
@@ -45,22 +45,22 @@ function buildBindingKeys(state:any,mapname:string, os:string) {
         default:
             if (os === 'mac') {
                 let ctrl = toPairs(disabledKeys['default-mac-ctrl'])
-                    .filter(([key, value]:[string, boolean]) => value)
-                    .map(([key, value]:[string, boolean]) => `Ctrl-${key}`)
+                    .filter(([key, value]: [string, boolean]) => value)
+                    .map(([key, value]: [string, boolean]) => `Ctrl-${key}`)
 
                 let alt = toPairs(disabledKeys['default-mac-alt'])
-                    .filter(([key, value]:[string, boolean]) => value)
-                    .map(([key, value]:[string, boolean]) => `Alt-${key}`)
+                    .filter(([key, value]: [string, boolean]) => value)
+                    .map(([key, value]: [string, boolean]) => `Alt-${key}`)
 
                 let cmd = toPairs(disabledKeys['default-mac-cmd'])
-                    .filter(([key, value]:[string, boolean]) => value)
-                    .map(([key, value]:[string, boolean]) => `Cmd-${key}`)
+                    .filter(([key, value]: [string, boolean]) => value)
+                    .map(([key, value]: [string, boolean]) => `Cmd-${key}`)
 
                 return JSON.stringify(ctrl.concat(alt).concat(cmd))
             } else {
                 let ctrl = toPairs(disabledKeys['default-pc-ctrl'])
-                    .filter(([key, value]:[string, boolean]) => value)
-                    .map(([key, value]:[string, boolean]) => `<C-${key}>`)
+                    .filter(([key, value]: [string, boolean]) => value)
+                    .map(([key, value]: [string, boolean]) => `<C-${key}>`)
 
                 return JSON.stringify(ctrl)
             }
@@ -77,14 +77,15 @@ function buildBindingKeys(state:any,mapname:string, os:string) {
 chrome.storage.sync.get(
     stored_state_keys, // ['vim_disable_keys', 'default_disable_keys', 'theme', 'keymap']
     function(state) {
-            console.log("HARD CODED os", state)
-            let keys = buildBindingKeys(state, "Vim","mac")
-            console.log('key vindings ', keys)
+        let keys = buildBindingKeys(state, 'Vim', 'mac')
+        // console.log('key vindings ', keys)
 
-        let script:string = `
+        let os = /Mac/.test(navigator.platform)? "mac":"other";
+
+        let script: string = `
 var __mapName = "${state.keymap}";
-var __vim_disable_keys = ${buildBindingKeys(state,"Vim","mac")};
-var __default_disable_keys = ${buildBindingKeys(state,"default","mac")};
+var __vim_disable_keys = ${buildBindingKeys(state, 'Vim', os)};
+var __default_disable_keys = ${buildBindingKeys(state, 'default', os)};
 var __vim_key_map = ${vim_bindings};
 var __emacs_key_map = ${emacs_bindings};
 var __sublime_key_map = ${sublime_bindings};
@@ -92,11 +93,11 @@ var __styleName = "${state.theme in styles ? state.theme : 'default'}"
 var __styleCSS = \`${state.theme in styles ? styles[state.theme] : ''}\`
 `
         // console.log("injecting script: ")
-            inject_script(`(function(){${script};${page};\n})()`)
+        inject_script(`(function(){${script};${page};\n})()`)
     }
 )
 
-function getBindings(name:string) {
+function getBindings(name: string) {
     switch (name) {
         case 'Vim':
             return vim_bindings
@@ -117,27 +118,32 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         sendResponse({
             message: 'got an invalid request',
         })
-    console.log(
-        sender.tab
-            ? 'from a content script:' + sender.tab.url
-            : 'from the extension'
-    )
+    //--     console.log(
+    //--         sender.tab
+    //--             ? 'from a content script:' + sender.tab.url
+    //--             : 'from the extension'
+    //--     )
 
-    switch (request.action) {
-        case 'set_theme':
-            inject_script(`(function(){
+    try {
+        switch (request.action) {
+            case 'set_theme':
+                inject_script(`(function(){
 let __styleName = "${request.theme in styles ? request.theme : 'default'}"
 let __styleCSS = \`${request.theme in styles ? styles[request.theme] : ''}\`
 window.__cm_global_config.set_style(__styleName, __styleCSS) 
 })()`)
 
-            sendResponse({ message: 'Theme script injected' })
-            break
+                sendResponse({ message: 'Theme script injected' })
+                break
 
-        case 'apply':
-            chrome.storage.sync.get(stored_state_keys, state => {
-                    let keys = buildBindingKeys(state,state.keymap, request.platform)
-                    console.log('applying key vindings ', keys)
+            case 'apply':
+                chrome.storage.sync.get(stored_state_keys, state => {
+                    let keys = buildBindingKeys(
+                        state,
+                        state.keymap,
+                        request.platform
+                    )
+                    // console.log('applying key vindings ', keys)
 
                     inject_script(`(function(){
 let __styleName = "${state.theme in styles ? state.theme : 'default'}";
@@ -145,12 +151,20 @@ let __styleCSS = \`${state.theme in styles ? styles[state.theme] : ''}\`;
 window.__cm_global_config.set_style(__styleName, __styleCSS);
 window.__cm_global_config.set_keymap("${state.keymap}",${keys}) ;
 })()`)
-            })
+                })
 
-            break
-        default:
-            sendResponse({
-                message: 'not sure what to do with ' + JSON.stringify(request),
-            })
+                sendResponse({ message: 'The settings were applied' })
+                break
+            default:
+                sendResponse({
+                    message:
+                        'not sure what to do with ' + JSON.stringify(request),
+                })
+        }
+    } catch (err) {
+        sendResponse({
+            message: 'something went wrong',
+            error: err,
+        })
     }
 })
