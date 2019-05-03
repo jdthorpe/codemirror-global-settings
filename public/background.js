@@ -157,8 +157,6 @@ chrome.runtime.onInstalled.addListener(function () {
     theme: default_theme,
     keymap: default_keyMap,
     storedDisabledBindings: JSON.stringify(bindings)
-  }, function () {
-    alert("restored storage");
   });
 }); // var default_default_disable_keys = ['Ctrl-V']
 // var default_vim_disable_keys = ['<C-c>', '<C-v>']

@@ -20,7 +20,7 @@ function save_options() {
             theme: theme,
         },
         function(items) {
-            alert('Saved!')
+            // alert('Saved!')
             // document.getElementById('like').checked = items.likesColor;
         }
     )

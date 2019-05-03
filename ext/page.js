@@ -1,13 +1,13 @@
-var __keymaps = {
-    Vim: __vim_key_map,
-    Emacs: __emacs_key_map,
-    Sublime: __sublime_key_map,
-};
 function __inject_style(src) {
     var script = document.constructor.prototype.createElement.call(document, 'style');
     script.innerHTML = src;
     document.documentElement.appendChild(script);
 }
+var __keymaps = {
+    Vim: __vim_key_map,
+    Emacs: __emacs_key_map,
+    Sublime: __sublime_key_map,
+};
 var cm_bindings = (function () {
     function cm_bindings(mapName, keymaps, styleName, styleCSS, vim_disable_keys, default_disable_keys) {
         this.loaded_styles = [];
@@ -23,8 +23,6 @@ var cm_bindings = (function () {
         this.find_and_inject();
         this.__find_and_inject = this.find_and_inject.bind(this);
         setInterval(this.__find_and_inject, 500);
-        console.log('constructor got vim_disable_keys: ', vim_disable_keys);
-        console.log('PS: this is why the page has to be re-loaded to update the bindings ');
     }
     cm_bindings.prototype.find_and_inject = function () {
         var _this = this;
@@ -61,18 +59,14 @@ var cm_bindings = (function () {
     };
     cm_bindings.prototype.inject_style = function (cm_data) {
         if (this.styleName === 'default') {
-            console.log('injecting default syle: ' + cm_data.theme);
             cm_data.cm.setOption('theme', cm_data.theme);
-            console.log('injecting default syle');
         }
         else {
-            console.log('injecting syle: ' + this.styleName);
             cm_data.cm.setOption('theme', this.styleName);
         }
     };
     cm_bindings.prototype.inject_bindings = function (cm) {
         if (typeof cm === 'undefined') {
-            console.log('inject_bindings was not passed a CodeMirror Instance!');
             return;
         }
         if (this.mapName === "default") {
@@ -85,17 +79,12 @@ var cm_bindings = (function () {
             if (cm.constructor[this.mapName]) {
                 delete cm.constructor[this.mapName];
             }
-            console.log('about to add KeyMap');
             this.keyMaps[this.mapName](cm.constructor);
-            console.log('KeyMap added');
         }
-        console.log('about to set options: ' + this.mapName.toLowerCase());
         try {
             cm.setOption('keyMap', this.mapName.toLowerCase());
-            console.log('keymap options set');
         }
         catch (e) {
-            console.log('got error: ', e);
         }
     };
     cm_bindings.prototype.set_keymap = function (mapName, disabled_keys) {
@@ -110,7 +99,6 @@ var cm_bindings = (function () {
         var _this = this;
         if (styleName !== 'default' &&
             this.loaded_styles.indexOf(styleName) === -1) {
-            console.log('injecting CSS: ' + styleCSS.substr(0, 40) + '...');
             __inject_style(styleCSS);
             this.loaded_styles.push(styleName);
         }

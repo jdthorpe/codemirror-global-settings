@@ -30,8 +30,7 @@ chrome.runtime.onInstalled.addListener(function() {
         theme: default_theme,
         keymap: default_keyMap,
         storedDisabledBindings: JSON.stringify(bindings),
-    },function(){ alert("restored storage")})
-
+    })
 })
 
 

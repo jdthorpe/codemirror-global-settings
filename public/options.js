@@ -114,8 +114,8 @@ function save_options() {
   chrome.storage.sync.set({
     keyMap: keyMap,
     theme: theme
-  }, function (items) {
-    alert('Saved!'); // document.getElementById('like').checked = items.likesColor;
+  }, function (items) {// alert('Saved!')
+    // document.getElementById('like').checked = items.likesColor;
   });
 } // --------------------------------------------------
 // Restores select box and checkbox state using the preferences
