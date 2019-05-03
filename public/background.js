@@ -142,27 +142,26 @@ for (var _i = 0, _Object$entries = Object.entries(defaults); _i < _Object$entrie
       }
     }
   }
-}
+} //-- chrome.storage.sync.clear(function() {
+//--     var error = chrome.runtime.lastError;
+//--     if (error) {
+//--     //alert("failed to clear storage")
+//--         console.error(error);
+//--     }
+//--     alert("cleared storage")
+//-- });
 
-chrome.storage.local.clear(function () {
-  var error = chrome.runtime.lastError;
-
-  if (error) {
-    alert("failed to clear storage");
-    console.error(error);
-  }
-
-  alert("cleared storage");
-}); // var default_default_disable_keys = ['Ctrl-V']
-// var default_vim_disable_keys = ['<C-c>', '<C-v>']
 
 chrome.runtime.onInstalled.addListener(function () {
-  chrome.storage.local.set({
+  chrome.storage.sync.set({
     theme: default_theme,
-    keyMap: default_keyMap,
+    keymap: default_keyMap,
     storedDisabledBindings: JSON.stringify(bindings)
+  }, function () {
+    alert("restored storage");
   });
-});
+}); // var default_default_disable_keys = ['Ctrl-V']
+// var default_vim_disable_keys = ['<C-c>', '<C-v>']
 
 /***/ })
 

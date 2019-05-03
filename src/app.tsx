@@ -134,7 +134,7 @@ class App extends Component<{}, appState> {
         })
 
         chrome.storage.sync.get(stored_state, s => {
-        console.log("sync state: ", s)
+        // console.log("sync state: ", s)
             s.disabledKeys = JSON.parse(s.storedDisabledBindings)
             this.setState(s as Pick<appState, keyof appState>)
         })
@@ -150,10 +150,10 @@ class App extends Component<{}, appState> {
         }
         let platform: string = this.state.platform!;
         chrome.storage.sync.set(_state, () => {
-            console.log('saved state??? ')
+            // console.log('saved state??? ')
             chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
               chrome.tabs.sendMessage((tabs[0].id as number), {action: "apply", platform}, function(response) {
-                console.log("(1) tab responded with: "+ response);
+                // console.log("(1) tab responded with: "+ response);
               });
             });
         })
@@ -168,23 +168,23 @@ class App extends Component<{}, appState> {
 
     onColorChange(e: React.ChangeEvent<HTMLSelectElement>) {
         const theme:string = (e.target as HTMLSelectElement).value
-        console.log('ColorChanged: ', theme)
+        // console.log('ColorChanged: ', theme)
         this.setState({ theme })
 
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
           chrome.tabs.sendMessage((tabs[0].id as number), {action: "set_theme", theme}, function(response) {
-            console.log("(2) tab responded with: "+ response);
+            // console.log("(2) tab responded with: "+ response);
           });
         });
     }
 
     onKeyMapChange(e: React.ChangeEvent<HTMLSelectElement>) {
-        console.log('KeyMapChange: ', (e.target as HTMLSelectElement).value)
+        // console.log('KeyMapChange: ', (e.target as HTMLSelectElement).value)
         this.setState({ keymap: (e.target as HTMLSelectElement).value })
     }
 
     onKeyBinding(val: any) {
-        console.log('KeyBinding', val)
+        // console.log('KeyBinding', val)
     }
 
     render() {
@@ -387,7 +387,7 @@ const MySelect = (props: {
     )
 
 
-    console.log('selectedIndex=', props.options.indexOf(props.value))
+    // console.log('selectedIndex=', props.options.indexOf(props.value))
     return (
         <div className="row">
             <div className="label col s4 black-text">

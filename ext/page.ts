@@ -1,42 +1,18 @@
+///<reference path="./page.d.ts"/>
+
 //--------------------------------------------------
-// typings
+// injected variables
 //--------------------------------------------------
-interface CMElement extends Element {
-    CodeMirror: CodeMirror
-}
 
-interface CodeMirror {
-    setOption(x: string, value: string): void
-    options: CodeMirrorOptions
-    constructor: CodeMirrorConstructor
-}
 
-interface CodeMirrorConstructor extends Function {
-    [x: string]: any
-}
-
-interface Window {
-    __cm_global_config: cm_bindings
-}
-
-interface CodeMirrorOptions {
-    theme: string
-}
-interface KeyMap {
-    (x: Function): void
-}
-
-interface cm_data {
-    cm: CodeMirror
-    theme: string
-}
-
-declare var __vim_disable_keys: string[]
-declare var __default_disable_keys: string[]
-declare var __mapName: string
-declare var __vim_key_map: KeyMap
-declare var __styleName: string
-declare var __styleCSS: string
+declare var __vim_disable_keys: string[];
+declare var __default_disable_keys: string[];
+declare var __mapName: string;
+declare var __styleName: string;
+declare var __styleCSS: string;
+declare var __vim_key_map: KeyMap;
+declare var __emacs_key_map: KeyMap;
+declare var __sublime_key_map: KeyMap;
 
 //--------------------------------------------------
 // utility
@@ -50,9 +26,21 @@ function __inject_style(src: string) {
     document.documentElement.appendChild(script)
 }
 
+interface Window {
+    __cm_global_config: cm_bindings
+}
+
 //--------------------------------------------------
 // classes
 //--------------------------------------------------
+
+var __keymaps:{[x:string]:KeyMap} = {
+    Vim: __vim_key_map,
+    Emacs: __emacs_key_map,
+    Sublime: __sublime_key_map,
+};
+
+
 class cm_bindings {
     queue: CMElement[]
     mirrors: cm_data[]
@@ -69,7 +57,7 @@ class cm_bindings {
     //------------------------------
     constructor(
         mapName: string,
-        vimKeyMap: KeyMap,
+        keymaps: {[x:string]:KeyMap},
         styleName: string,
         styleCSS: string,
         vim_disable_keys: string[],
@@ -79,10 +67,8 @@ class cm_bindings {
         this.queue = []
         this.mirrors = []
         this.set_style(styleName, styleCSS)
-        this.keyMaps = { 
-            Vim: vimKeyMap ,
-            "default": function(){}
-        }
+        this.keyMaps = keymaps
+        this.keyMaps.default = function(){}
 
         this.disabled_key_bindings = {}
         this.disabled_key_bindings["Vim"] = vim_disable_keys
@@ -91,10 +77,8 @@ class cm_bindings {
         this.find_and_inject()
         this.__find_and_inject = this.find_and_inject.bind(this)
         setInterval(this.__find_and_inject, 500)
-        console.log('constructor got vim_disable_keys: ', vim_disable_keys)
-        console.log(
-            'PS: this is why the page has to be re-loaded to update the bindings '
-        )
+        // console.log('constructor got vim_disable_keys: ', vim_disable_keys)
+        // console.log( 'PS: this is why the page has to be re-loaded to update the bindings ')
     }
 
     __find_and_inject: () => void
@@ -136,11 +120,11 @@ class cm_bindings {
     //------------------------------
     inject_style(cm_data: cm_data) {
         if (this.styleName === 'default') {
-            console.log('injecting default syle: ' + cm_data.theme)
+            // console.log('injecting default syle: ' + cm_data.theme)
             cm_data.cm.setOption('theme', cm_data.theme)
-            console.log('injecting default syle')
+            // console.log('injecting default syle')
         } else {
-            console.log('injecting syle: ' + this.styleName)
+            // console.log('injecting syle: ' + this.styleName)
             cm_data.cm.setOption('theme', this.styleName)
         }
     }
@@ -150,7 +134,7 @@ class cm_bindings {
     //------------------------------
     inject_bindings(cm: CodeMirror) {
         if (typeof cm === 'undefined') {
-            console.log('inject_bindings was not passed a CodeMirror Instance!')
+            // console.log('inject_bindings was not passed a CodeMirror Instance!')
             return
         }
 
@@ -175,20 +159,20 @@ class cm_bindings {
             if(cm.constructor[this.mapName]){
                 delete cm.constructor[this.mapName]
             }
-            console.log('about to add KeyMap')
+            // console.log('about to add KeyMap')
             this.keyMaps[this.mapName](cm.constructor)
-            console.log('KeyMap added')
+            // console.log('KeyMap added')
         }
 
         // ------------------------------
         // set the keyMap option
         // ------------------------------
-        console.log('about to set options: ' + this.mapName.toLowerCase())
+        // console.log('about to set options: ' + this.mapName.toLowerCase())
         try {
             cm.setOption('keyMap', this.mapName.toLowerCase())
-            console.log('keymap options set')
+            // console.log('keymap options set')
         } catch (e) {
-            console.log('got error: ', e)
+            // console.log('got error: ', e)
         }
     }
 
@@ -211,7 +195,7 @@ class cm_bindings {
             styleName !== 'default' &&
             this.loaded_styles.indexOf(styleName) === -1
         ) {
-            console.log('injecting CSS: ' + styleCSS.substr(0, 40) + '...')
+            // console.log('injecting CSS: ' + styleCSS.substr(0, 40) + '...')
             __inject_style(styleCSS)
             this.loaded_styles.push(styleName)
         }
@@ -221,11 +205,12 @@ class cm_bindings {
 }
 
 //--------------------------------------------------
-// actual work
+// inject the bindings object into the page
 //--------------------------------------------------
+
 ;(function(
     __mapName: string,
-    __vim_key_map: KeyMap,
+    __keymaps: {[x:string]:KeyMap},
     __styleName,
     __styleCSS,
     __vim_disable_keys: string[],
@@ -233,7 +218,7 @@ class cm_bindings {
 ) {
     window.__cm_global_config = new cm_bindings(
         __mapName,
-        __vim_key_map,
+        __keymaps,
         __styleName,
         __styleCSS,
         __vim_disable_keys,
@@ -241,7 +226,7 @@ class cm_bindings {
     )
 })(
     __mapName,
-    __vim_key_map,
+    __keymaps,
     __styleName,
     __styleCSS,
     __vim_disable_keys,

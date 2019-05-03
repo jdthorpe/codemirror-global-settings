@@ -2,9 +2,9 @@
 
 /*global chrome */
 
-import vim_bindings from '!!raw-loader!./vim'
-//import emacs_bindings from '!!raw-loader!./emacs'
-//import sublime_bindings from '!!raw-loader!./sublime'
+import vim_bindings from '!!raw-loader!./keymap/vim'
+import emacs_bindings from '!!raw-loader!./keymap/emacs'
+import sublime_bindings from '!!raw-loader!./keymap/sublime'
 import page from '!!raw-loader!./page'
 import { inject_script } from './inject'
 import styles from './styles'
@@ -81,16 +81,18 @@ chrome.storage.sync.get(
             let keys = buildBindingKeys(state, "Vim","mac")
             console.log('key vindings ', keys)
 
-
-            inject_script(`(function(){
+        let script:string = `
 var __mapName = "${state.keymap}";
 var __vim_disable_keys = ${buildBindingKeys(state,"Vim","mac")};
 var __default_disable_keys = ${buildBindingKeys(state,"default","mac")};
 var __vim_key_map = ${vim_bindings};
+var __emacs_key_map = ${emacs_bindings};
+var __sublime_key_map = ${sublime_bindings};
 var __styleName = "${state.theme in styles ? state.theme : 'default'}"
 var __styleCSS = \`${state.theme in styles ? styles[state.theme] : ''}\`
-${page};
-})()`)
+`
+        // console.log("injecting script: ")
+            inject_script(`(function(){${script};${page};\n})()`)
     }
 )
 

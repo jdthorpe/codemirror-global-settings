@@ -1,18 +1,21 @@
+var __keymaps = {
+    Vim: __vim_key_map,
+    Emacs: __emacs_key_map,
+    Sublime: __sublime_key_map,
+};
 function __inject_style(src) {
     var script = document.constructor.prototype.createElement.call(document, 'style');
     script.innerHTML = src;
     document.documentElement.appendChild(script);
 }
 var cm_bindings = (function () {
-    function cm_bindings(mapName, vimKeyMap, styleName, styleCSS, vim_disable_keys, default_disable_keys) {
+    function cm_bindings(mapName, keymaps, styleName, styleCSS, vim_disable_keys, default_disable_keys) {
         this.loaded_styles = [];
         this.queue = [];
         this.mirrors = [];
         this.set_style(styleName, styleCSS);
-        this.keyMaps = {
-            Vim: vimKeyMap,
-            "default": function () { }
-        };
+        this.keyMaps = keymaps;
+        this.keyMaps.default = function () { };
         this.disabled_key_bindings = {};
         this.disabled_key_bindings["Vim"] = vim_disable_keys;
         this.disabled_key_bindings["default"] = default_disable_keys;
@@ -117,7 +120,7 @@ var cm_bindings = (function () {
     return cm_bindings;
 }());
 ;
-(function (__mapName, __vim_key_map, __styleName, __styleCSS, __vim_disable_keys, __default_disable_keys) {
-    window.__cm_global_config = new cm_bindings(__mapName, __vim_key_map, __styleName, __styleCSS, __vim_disable_keys, __default_disable_keys);
-})(__mapName, __vim_key_map, __styleName, __styleCSS, __vim_disable_keys, __default_disable_keys);
+(function (__mapName, __keymaps, __styleName, __styleCSS, __vim_disable_keys, __default_disable_keys) {
+    window.__cm_global_config = new cm_bindings(__mapName, __keymaps, __styleName, __styleCSS, __vim_disable_keys, __default_disable_keys);
+})(__mapName, __keymaps, __styleName, __styleCSS, __vim_disable_keys, __default_disable_keys);
 //# sourceMappingURL=page.js.map
