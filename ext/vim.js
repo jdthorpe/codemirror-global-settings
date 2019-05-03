@@ -217,9 +217,9 @@ function inject_map(CodeMirror) {
 
     console.log("CodeMirror.vim_disable_keys: ", CodeMirror.vim_disable_keys)
     if(CodeMirror.vim_disable_keys){
-        console.log("from: " + defaultKeymap.length)
+        console.log("Reducing key bindings from: " + defaultKeymap.length)
         defaultKeymap = defaultKeymap.filter(km => CodeMirror.vim_disable_keys.indexOf(km.keys) === -1)
-        console.log("to: " + defaultKeymap.length)
+        console.log("Reducing key bindings to: " + defaultKeymap.length)
     }
 
   var defaultKeymapLength = defaultKeymap.length;

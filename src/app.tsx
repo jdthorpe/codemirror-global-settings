@@ -1,12 +1,12 @@
 ///<reference path="../node_modules/@types/chrome/index.d.ts" />
-/*global chrome $ window */
+/*global chrome */
 import React, { Component } from 'react'
 
 import logo from './assets/logo.svg'
 import './App.css'
 import { Letters } from './letters'
-const { FormSelect } = require('materialize')
-const { Select, Button } = require('react-materialize')
+// const { FormSelect } = require('materialize')
+const { Button } = require('react-materialize') // Select, 
 
 const Aux = (props: any) => {
     return props.children
@@ -133,21 +133,13 @@ class App extends Component<{}, appState> {
             this.setState({ platform: info.os })
         })
 
-        chrome.storage.local.get(stored_state, s => {
-            if (!s.disabledKeys) {
-                console.log('restoring binidngs')
-                s.disabledKeys = JSON.parse(s.storedDisabledBindings)
-            }
+        chrome.storage.sync.get(stored_state, s => {
+        console.log("sync state: ", s)
+            s.disabledKeys = JSON.parse(s.storedDisabledBindings)
             this.setState(s as Pick<appState, keyof appState>)
         })
-        // ( $('select') as any ).material_select();
     }
 
-    componentDidUpdate() {
-        // ( $('select') as any ).material_select();
-        // var elems = document.querySelectorAll('select');
-        // var instances = FormSelect.init(elems);
-    }
     onSave() {
         let _state: any = {
             theme: this.state.theme,
@@ -156,26 +148,34 @@ class App extends Component<{}, appState> {
             keymapOptions: this.state.keymapOptions,
             storedDisabledBindings: JSON.stringify(this.state.disabledKeys),
         }
-        console.log('_state: ', _state)
-        chrome.storage.local.set(_state, () => {
+        let platform: string = this.state.platform!;
+        chrome.storage.sync.set(_state, () => {
             console.log('saved state??? ')
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+              chrome.tabs.sendMessage((tabs[0].id as number), {action: "apply", platform}, function(response) {
+                console.log("(1) tab responded with: "+ response);
+              });
+            });
         })
     }
 
     onCancel() {
-        chrome.storage.local.get(stored_state, s => {
-            if (!s.disabledKeys) {
-                console.log('RESTORING BINIDNGS')
-                s.disabledKeys = JSON.parse(s.storedDisabledBindings)
-            }
+        chrome.storage.sync.get(stored_state, s => {
             s.disabledKeys = JSON.parse(s.storedDisabledBindings)
             this.setState(s as Pick<appState, keyof appState>)
         })
     }
 
     onColorChange(e: React.ChangeEvent<HTMLSelectElement>) {
-        console.log('ColorChanged: ', (e.target as HTMLSelectElement).value)
-        this.setState({ theme: (e.target as HTMLSelectElement).value })
+        const theme:string = (e.target as HTMLSelectElement).value
+        console.log('ColorChanged: ', theme)
+        this.setState({ theme })
+
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+          chrome.tabs.sendMessage((tabs[0].id as number), {action: "set_theme", theme}, function(response) {
+            console.log("(2) tab responded with: "+ response);
+          });
+        });
     }
 
     onKeyMapChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -255,7 +255,7 @@ class App extends Component<{}, appState> {
                         style={{ marginRight: '5px' }}
                         onClick={this.onCancel.bind(this)}
                     >
-                        Cancel
+                        Reset
                     </Button>
                 </div>
                 <Messages messages={this.state.messages} />
@@ -263,12 +263,6 @@ class App extends Component<{}, appState> {
         )
     }
 }
-
-//--     'vim-ctrl': 'npccfbduwioeyvqraxtd',
-//--     'default-pc-ctrl': 'adzysfgu',
-//--     'default-mac-ctrl': 'fbpnaevdhkto',
-//--     'default-mac-alt': 'fbd',
-//--     'default-mac-cmd': 'adzysfgu',
 
 const DisabledKeys = (props: {
     keys: disabledBindings
@@ -373,7 +367,6 @@ const Messages = (props: {
 //-- declare var majic: React.DetailedHTMLProps<React.SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>;
 //-- majic.val
 
-declare var window: any
 const MySelect = (props: {
     value: string
     label: string | React.Component
@@ -393,7 +386,6 @@ const MySelect = (props: {
         </select>
     )
 
-    window[props.value] = sele
 
     console.log('selectedIndex=', props.options.indexOf(props.value))
     return (

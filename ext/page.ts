@@ -1,5 +1,5 @@
 //--------------------------------------------------
-// typings 
+// typings
 //--------------------------------------------------
 interface CMElement extends Element {
     CodeMirror: CodeMirror
@@ -34,7 +34,7 @@ interface cm_data {
 declare var __vim_disable_keys: string[]
 declare var __default_disable_keys: string[]
 declare var __mapName: string
-declare var __addKeyMap: KeyMap
+declare var __vim_key_map: KeyMap
 declare var __styleName: string
 declare var __styleCSS: string
 
@@ -57,36 +57,47 @@ class cm_bindings {
     queue: CMElement[]
     mirrors: cm_data[]
     mapName: string
-    addKeyMap: KeyMap
+    keyMaps: { [x: string]: KeyMap }
 
     styleName: string
 
     loaded_styles: string[]
-    vim_disable_keys: string[]
-    disable_keys: string[]
+    disabled_key_bindings: {[x:string]:string[]}
 
     //------------------------------
     // Constructor
     //------------------------------
     constructor(
         mapName: string,
-        addKeyMap: KeyMap,
+        vimKeyMap: KeyMap,
         styleName: string,
         styleCSS: string,
         vim_disable_keys: string[],
-        disable_keys: string[]
+        default_disable_keys: string[]
     ) {
         this.loaded_styles = []
         this.queue = []
         this.mirrors = []
         this.set_style(styleName, styleCSS)
-        this.set_keymap(mapName, addKeyMap)
+        this.keyMaps = { 
+            Vim: vimKeyMap ,
+            "default": function(){}
+        }
 
-        this.vim_disable_keys = vim_disable_keys
-        this.disable_keys = disable_keys
+        this.disabled_key_bindings = {}
+        this.disabled_key_bindings["Vim"] = vim_disable_keys
+        this.disabled_key_bindings["default"] = default_disable_keys
+        this.set_keymap(mapName, this.disabled_key_bindings[mapName])
         this.find_and_inject()
-        setInterval(this.find_and_inject.bind(this), 500)
+        this.__find_and_inject = this.find_and_inject.bind(this)
+        setInterval(this.__find_and_inject, 500)
+        console.log('constructor got vim_disable_keys: ', vim_disable_keys)
+        console.log(
+            'PS: this is why the page has to be re-loaded to update the bindings '
+        )
     }
+
+    __find_and_inject: () => void
 
     find_and_inject() {
         document
@@ -101,10 +112,14 @@ class cm_bindings {
             if (el['CodeMirror']) {
                 let cm: CodeMirror = el['CodeMirror']
 
-                this.disable_keys.forEach(key => {
-                    delete cm.constructor['keyMap'].emacsy[key]
-                })
-                cm.constructor['vim_disable_keys'] = this.vim_disable_keys
+                if(this.mapName === "default"){
+                    // this is non-reversable, so only do it if necessary
+                    this.disabled_key_bindings["default"].forEach(key => {
+                        delete cm.constructor['keyMap'].emacsy[key]
+                    })
+                }
+                // this is reversable...
+                cm.constructor['vim_disable_keys'] = this.disabled_key_bindings['Vim']
 
                 this.inject_bindings(cm)
 
@@ -125,7 +140,7 @@ class cm_bindings {
             cm_data.cm.setOption('theme', cm_data.theme)
             console.log('injecting default syle')
         } else {
-            console.log('injecting default syle: ' + this.styleName)
+            console.log('injecting syle: ' + this.styleName)
             cm_data.cm.setOption('theme', this.styleName)
         }
     }
@@ -134,28 +149,61 @@ class cm_bindings {
     // inject key map
     //------------------------------
     inject_bindings(cm: CodeMirror) {
-        if (!cm.constructor[this.mapName]) {
+        if (typeof cm === 'undefined') {
+            console.log('inject_bindings was not passed a CodeMirror Instance!')
+            return
+        }
+
+        // ------------------------------
+        // set up the disabled keys
+        // ------------------------------
+        if(this.mapName === "default"){
+            // this is non-reversable, so only do it if necessary
+            this.disabled_key_bindings["default"].forEach(key => {
+                delete cm.constructor['keyMap'].emacsy[key]
+            })
+        }
+        // this is reversable...
+        cm.constructor['vim_disable_keys'] = this.disabled_key_bindings['Vim']
+
+
+        // ------------------------------
+        // inject the keymap
+        // ------------------------------
+        if (this.mapName !== 'default') {
+            // note that when the bindings change, then the keymap needs to be re-installed
+            if(cm.constructor[this.mapName]){
+                delete cm.constructor[this.mapName]
+            }
             console.log('about to add KeyMap')
-            this.addKeyMap(cm.constructor)
+            this.keyMaps[this.mapName](cm.constructor)
             console.log('KeyMap added')
         }
-        console.log('about to set options')
+
+        // ------------------------------
+        // set the keyMap option
+        // ------------------------------
+        console.log('about to set options: ' + this.mapName.toLowerCase())
         try {
-            cm.setOption('keyMap', this.mapName)
+            cm.setOption('keyMap', this.mapName.toLowerCase())
+            console.log('keymap options set')
         } catch (e) {
             console.log('got error: ', e)
         }
-        console.log('options set')
     }
 
     //------------------------------
     // set configuration
     //------------------------------
 
-    set_keymap(mapName: string, addKeyMap: KeyMap) {
+    set_keymap(mapName: string,disabled_keys: string[] ) {
         this.mapName = mapName
-        this.addKeyMap = addKeyMap
+        if (!(mapName in this.keyMaps))
+            throw new Error('unknown keymap ' + mapName)
+        this.disabled_key_bindings[mapName] = disabled_keys;
+
         this.mirrors.map(cm_data => this.inject_bindings(cm_data.cm))
+
     }
 
     set_style(styleName: string, styleCSS: string) {
@@ -163,7 +211,7 @@ class cm_bindings {
             styleName !== 'default' &&
             this.loaded_styles.indexOf(styleName) === -1
         ) {
-            console.log('injecting CSS: ', styleCSS)
+            console.log('injecting CSS: ' + styleCSS.substr(0, 40) + '...')
             __inject_style(styleCSS)
             this.loaded_styles.push(styleName)
         }
@@ -177,7 +225,7 @@ class cm_bindings {
 //--------------------------------------------------
 ;(function(
     __mapName: string,
-    __addKeyMap: KeyMap,
+    __vim_key_map: KeyMap,
     __styleName,
     __styleCSS,
     __vim_disable_keys: string[],
@@ -185,7 +233,7 @@ class cm_bindings {
 ) {
     window.__cm_global_config = new cm_bindings(
         __mapName,
-        __addKeyMap,
+        __vim_key_map,
         __styleName,
         __styleCSS,
         __vim_disable_keys,
@@ -193,7 +241,7 @@ class cm_bindings {
     )
 })(
     __mapName,
-    __addKeyMap,
+    __vim_key_map,
     __styleName,
     __styleCSS,
     __vim_disable_keys,
