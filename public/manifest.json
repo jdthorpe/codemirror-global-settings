@@ -1,7 +1,7 @@
 {
     "name": "Codemirror Global Settings",
     "version": "1.0.0",
-    "description": "Set the configuration opptions for every codemirror instnace",
+    "description": "Set the configuration options for every codemirror instnace on the web.",
     "permissions": ["storage", "*://*/*"],
     "icons": {
         "128": "assets/cm-icon-128.png",

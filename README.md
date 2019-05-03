@@ -1,3 +1,24 @@
+# CodeMirror Global Settings
+
+Inject your favorite color theme or key bindings into every code mirror instance on the web!
+
+![Screen shot](./assets/ScreenShot.png)
+
+
+#### Build
+
+To build, use:
+
+```bash
+npm init
+npm run build
+```
+
+The built extension is created in the `build` directory, and can be installed
+locally by following [these instructions](
+https://github.com/jdthorpe/codemirror-global-settings)
+
+
 <!--
 images were converted like so: 
 homebrew install imagemagick
@@ -15,6 +36,5 @@ ls -aR build | grep '\(~\|swp\)$' | xargs rm -f
 
 
 
-Build with `npm run build`
 
 
